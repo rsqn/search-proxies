@@ -9,14 +9,12 @@
 
     <groupId>tech.rsqn</groupId>
     <artifactId>search-proxies</artifactId>
-    <version>1.0.28-SNAPSHOT</version>
+    <version>1.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <name>useful-things</name>
-    <description>A collection of common utilities used by rsqn.tech opensource projects.</description>
+    <name>search-proxies</name>
+    <description>A collection wrappers to search tools, for SME and small applications.</description>
     <url>https://github.com/rsqn/useful-things</url>
-
-    INTENTIONALLY BORKEN
 
     <licenses>
         <license>
@@ -35,8 +33,8 @@
     </developers>
 
     <scm>
-        <connection>scm:git:git@github.com:rsqn/useful-things.git</connection>
-        <developerConnection>scm:git:git@github.com:rsqn/useful-things.git</developerConnection>
+        <connection>scm:git:git@github.com:rsqn/search-proxies.git</connection>
+        <developerConnection>scm:git:git@github.com:rsqn/search-proxies.git</developerConnection>
         <url>https://github.com/mandrewes/useful-things</url>
         <tag>HEAD</tag>
     </scm>
@@ -47,15 +45,11 @@
         <!-- Build  and test -->
         <testng.version>6.9.10</testng.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <jetty.version>9.3.0.M1</jetty.version>
-        <servlet.api.version>4.0.0-b01</servlet.api.version>
     </properties>
 
     <modules>
-        <module>simple-utilities</module>
-        <module>embedded-jetty</module>
-        <module>web-utilities</module>
-        <module>application-utilities</module>
+        <module>search-proxy-api</module>
+        <module>search-proxy-lucene</module>
     </modules>
 
 </project>

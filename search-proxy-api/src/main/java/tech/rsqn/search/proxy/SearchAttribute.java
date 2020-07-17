@@ -1,7 +1,7 @@
 package tech.rsqn.search.proxy;
 
 public class SearchAttribute {
-    public enum Type {FUZZY,EQ};
+    public enum Type {FUZZY,EQ,GTE,LTE,BETWEEN};
     public static final String WILDCARD_FIELD = "*";
 
     private String name;

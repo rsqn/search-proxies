@@ -81,8 +81,14 @@ public class InMemoryIndex implements Index {
     public SearchResult search(SearchQuery query) {
 
         SearchResult ret = new SearchResult();
+        boolean foundStartingPos = query.getLastKey() == null;
 
         for (IndexEntry indexEntry : data) {
+            if(!foundStartingPos && indexEntry.getReference().contentEquals(query.getLastKey())){
+                foundStartingPos = true;
+                continue;
+            }
+            
             for (SearchAttribute searchAttr : query.getAttributes()) {
                 for (String entryAttrKey : indexEntry.getAttrs().keySet()) {
                     if ("*".equals(searchAttr.getName()) || searchAttr.getName().equals(entryAttrKey)) {
@@ -97,6 +103,10 @@ public class InMemoryIndex implements Index {
                         }
                     }
                 }
+            }
+            
+            if(ret.getMatches().size() >= query.getLimit()) {
+                break;
             }
         }
 

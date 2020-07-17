@@ -115,6 +115,12 @@ public class LuceneIndex implements Index {
         lastUpdate = System.currentTimeMillis();
         Document doc = new Document();
         Field f;
+        
+        f = new StringField(ID_FIELD, entry.getUid(), Field.Store.YES);
+        doc.add(f);
+        
+        f = new StringField(REFERENCE_FIELD, entry.getReference(), Field.Store.YES);
+        doc.add(f);
 
         IndexAttribute v;
         for (String keyField : entry.getAttrs().keySet()) {
@@ -134,9 +140,17 @@ public class LuceneIndex implements Index {
                 doc.add(f);
             } else if (Attribute.Type.Long == v.getAttrType()) {
                 Long n = v.getAttrValueAs(Long.class);
-                f = new SortedNumericDocValuesField(keyField, n);
+                doc.add(new LongPoint(keyField, n));
+                doc.add(new StoredField(keyField, n));
+            } else if (Attribute.Type.Boolean == v.getAttrType()) {
+                Boolean n = v.getAttrValueAs(Boolean.class);
+                f = new StringField(keyField,n.toString(), Field.Store.YES);
                 doc.add(f);
-            } else {
+            } else if (Attribute.Type.Array == v.getAttrType()) {
+                String s = v.getAttrValueAs(String.class);
+                f = new StringField(keyField, s, Field.Store.YES);
+                doc.add(f);
+            }else {
                 log.warn("Unsupported attribute type " + v.getAttrType());
             }
         }
@@ -267,7 +281,17 @@ public class LuceneIndex implements Index {
         } else if (SearchAttribute.Type.EQ == attr.getMatchType()) {
             _q = new TermQuery(new Term(attr.getName(), attr.getPattern().toString()));
             builder.add(_q, BooleanClause.Occur.SHOULD);
-        } else {
+        } else if (SearchAttribute.Type.GTE == attr.getMatchType()) {
+            _q = LongPoint.newRangeQuery(attr.getName(), attr.getPattern(), Long.MAX_VALUE);
+            builder.add(_q, BooleanClause.Occur.MUST);
+        } else if (SearchAttribute.Type.LTE == attr.getMatchType()) {
+            _q = LongPoint.newRangeQuery(attr.getName(), Long.MIN_VALUE, attr.getPattern());
+            builder.add(_q, BooleanClause.Occur.MUST);
+        } else if (SearchAttribute.Type.BETWEEN == attr.getMatchType()) {
+            Long[] values = attr.getPattern();
+            _q = LongPoint.newRangeQuery(attr.getName(), values[0], values[1]);
+            builder.add(_q, BooleanClause.Occur.FILTER);
+        }else {
             throw new RuntimeException("Unsupported search attribute type");
         }
 
@@ -297,24 +321,29 @@ public class LuceneIndex implements Index {
             }
 
             TopDocs results;
-
+            int maxResults = proxyQuery.getFrom() + proxyQuery.getLimit();
+            
             if (sort != null) {
-                results = searcher.search(luceneQuery, proxyQuery.getLimit(), sort);
+                results = searcher.search(luceneQuery, maxResults, sort);
             } else {
-                results = searcher.search(luceneQuery, proxyQuery.getLimit());
+                results = searcher.search(luceneQuery, maxResults);
             }
 
             ScoreDoc[] hits = results.scoreDocs;
             int numTotalHits = results.totalHits;
             log.debug(numTotalHits + " total matching documents");
-
-            for (ScoreDoc hit : hits) {
-                log.debug("doc=" + hit.doc + " score=" + hit.score);
-                Document doc = searcher.doc(hit.doc);
+            
+            int startIndex = proxyQuery.getFrom();
+            
+            for(int i=startIndex;i<hits.length;i++) {
+                log.debug("doc=" + hits[i].doc + " score=" + hits[i].score);
+                Document doc = searcher.doc(hits[i].doc);
                 String id = doc.get(ID_FIELD);
-                log.debug("doc=" + hit.doc + " score=" + hit.score + " id=" + id);
-                SearchResultItem item = new SearchResultItem().with(docToIndexEntry(hit, doc), hit.score);
+                log.debug("doc=" + hits[i].doc + " score=" + hits[i].score + " id=" + id);
+                SearchResultItem item = new SearchResultItem().with(docToIndexEntry(hits[i], doc), hits[i].score);
                 ret.addMatch(item);
+                ret.setLastKey(item.getIndexEntry().getUid());
+                ret.setLastIndex(i);
             }
         } catch (Exception ex) {
             throw new RuntimeException(ex);
@@ -327,4 +356,5 @@ public class LuceneIndex implements Index {
         }
         return ret;
     }
+
 }

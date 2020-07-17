@@ -1,6 +1,6 @@
 package tech.rsqn.search.proxy;
 
 public class Attribute {
-    public enum Type {Text, String, Long, Date};
+    public enum Type {Text, String, Long, Date, Boolean, Array};
 
 }

@@ -10,7 +10,8 @@ public class SearchQuery {
     private List<SearchAttribute> attributes;
     private int limit;
 //    private int pageSize;
-//    private String lastKey;
+    private String lastKey = null;
+    private int from;
 
     public SearchQuery() {
         attributes = new ArrayList<>();
@@ -19,6 +20,11 @@ public class SearchQuery {
 
     public <T> SearchQuery with(String n, T v) {
         return and(n,v);
+    }
+    
+    public <T> SearchQuery with(SearchAttribute attribute) {
+        attributes.add(attribute);
+        return this;
     }
 
     public <T> SearchQuery and(String n, T v) {
@@ -50,4 +56,21 @@ public class SearchQuery {
     public void setLimit(int limit) {
         this.limit = limit;
     }
+
+    public String getLastKey() {
+        return lastKey;
+    }
+
+    public void setLastKey(String lastKey) {
+        this.lastKey = lastKey;
+    }
+
+    public int getFrom() {
+        return from;
+    }
+
+    public void setFrom(int from) {
+        this.from = from;
+    }
+
 }

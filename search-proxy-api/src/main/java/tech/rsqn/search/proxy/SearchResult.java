@@ -9,6 +9,7 @@ public class SearchResult {
 
     private List<SearchResultItem> matches;
     private String lastKey;
+    private int lastIndex;
     private double sumScore = 0;
     private double matchCount = 0;
 
@@ -77,5 +78,13 @@ public class SearchResult {
 
     public void setLastKey(String lastKey) {
         this.lastKey = lastKey;
+    }
+
+    public int getLastIndex() {
+        return lastIndex;
+    }
+
+    public void setLastIndex(int lastIndex) {
+        this.lastIndex = lastIndex;
     }
 }

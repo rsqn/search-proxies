@@ -50,6 +50,7 @@
     <modules>
         <module>search-proxy-api</module>
         <module>search-proxy-lucene</module>
+        <module>search-proxy-elasticsearch</module>
     </modules>
 
 </project>

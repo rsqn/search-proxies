@@ -30,7 +30,11 @@ public class SearchQuery {
     public <T> SearchQuery and(String n, T v) {
         if ( v instanceof Long ) {
             attributes.add(new SearchAttribute().with(n,v).andMatchType(SearchAttribute.Type.EQ));
-        } else {
+        } 
+        else if ( v instanceof Integer ) {
+            attributes.add(new SearchAttribute().with(n,v).andMatchType(SearchAttribute.Type.EQ));     
+        }
+        else {
             attributes.add(new SearchAttribute().with(n,v.toString()).andMatchType(SearchAttribute.Type.FUZZY));
         }
         return this;

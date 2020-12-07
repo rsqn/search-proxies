@@ -9,7 +9,7 @@
 
     <groupId>tech.rsqn</groupId>
     <artifactId>search-proxies</artifactId>
-    <version>1.0.3</version>
+    <version>1.0.4-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>search-proxies</name>
@@ -36,7 +36,7 @@
         <connection>scm:git:git@github.com:rsqn/search-proxies.git</connection>
         <developerConnection>scm:git:git@github.com:rsqn/search-proxies.git</developerConnection>
         <url>https://github.com/mandrewes/useful-things</url>
-        <tag>search-proxies-1.0.3</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <properties>

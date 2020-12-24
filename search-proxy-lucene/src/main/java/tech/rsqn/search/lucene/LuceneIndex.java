@@ -5,6 +5,7 @@ import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.*;
 import org.apache.lucene.index.*;
 import org.apache.lucene.search.*;
+import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.spans.SpanNearQuery;
 import org.apache.lucene.search.spans.SpanQuery;
 import org.apache.lucene.search.spans.SpanTermQuery;

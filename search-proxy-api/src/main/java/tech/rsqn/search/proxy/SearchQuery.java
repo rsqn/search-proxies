@@ -12,6 +12,7 @@ public class SearchQuery {
 //    private int pageSize;
     private String lastKey = null;
     private int from;
+    private Sort sort;
 
     public SearchQuery() {
         attributes = new ArrayList<>();
@@ -75,6 +76,14 @@ public class SearchQuery {
 
     public void setFrom(int from) {
         this.from = from;
+    }
+
+    public Sort getSort() {
+        return sort;
+    }
+
+    public void setSort(Sort sort) {
+        this.sort = sort;
     }
 
 }

@@ -1,7 +1,5 @@
 package tech.rsqn.search.elasticsearch;
 
-import java.util.Arrays;
-
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -26,7 +24,6 @@ public class ElasticSearchIndexTest {
         index = new ElasticSearchIndex();
         index.setIndex("test");
         index.setConnectionParameters("localhost", 9200, "http");
-        index.setWildCardFields(Arrays.asList("name","desc","ident"));
         
         populateIndex();
     }
@@ -129,7 +126,7 @@ public class ElasticSearchIndexTest {
                 .with("*","dog");
 
         SearchResult result = index.search(query);
-        Assert.assertEquals(result.getMatches().size(), 3);
+        Assert.assertEquals(result.getMatches().size(), 2);
 
     }
 

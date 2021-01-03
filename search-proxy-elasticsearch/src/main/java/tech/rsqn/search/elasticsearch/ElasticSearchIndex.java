@@ -22,6 +22,7 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.search.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +34,7 @@ import tech.rsqn.search.proxy.SearchAttribute;
 import tech.rsqn.search.proxy.SearchQuery;
 import tech.rsqn.search.proxy.SearchResult;
 import tech.rsqn.search.proxy.SearchResultItem;
+import tech.rsqn.search.proxy.Sort;
 
 public class ElasticSearchIndex implements Index {
     
@@ -43,7 +45,6 @@ public class ElasticSearchIndex implements Index {
     
     private RestHighLevelClient client;
     private String index;
-    private List<String> wildCardFields;
     
     private BulkRequest bulkRequest;
     private int maxBatchSize = -1;
@@ -59,10 +60,6 @@ public class ElasticSearchIndex implements Index {
     
     public void setClient(RestHighLevelClient client) {
         this.client = client;
-    }
-    
-    public void setWildCardFields(List<String> wildCardFields) {
-        this.wildCardFields = wildCardFields;
     }
     
     public int getMaxBatchSize() {
@@ -139,10 +136,18 @@ public class ElasticSearchIndex implements Index {
     @Override
     public SearchResult search(SearchQuery query) {
         SearchRequest searchRequest = new SearchRequest(index); 
-        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder(); 
-        searchSourceBuilder.query(searchQueryToElasticSearchQuery(query)).size(query.getLimit()*2).minScore(0.30f).from(query.getFrom()); 
-        searchRequest.source(searchSourceBuilder); 
+        
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        searchSourceBuilder.query(searchQueryToElasticSearchQuery(query));
+        searchSourceBuilder.from(query.getFrom());
+        searchSourceBuilder.size(query.getLimit()*2);
+        
+        if(query.getSort() != null) {
+            searchSourceBuilder.sort(query.getSort().getSortField(), query.getSort().getSortDirection().equals(Sort.SortDirection.ASC) ? SortOrder.ASC : SortOrder.DESC);
+        }
 
+        searchRequest.source(searchSourceBuilder); 
+        
         try {
             SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);            
             SearchResult searchResult =  elasticResponseToSearchResult(searchResponse);
@@ -218,18 +223,17 @@ public class ElasticSearchIndex implements Index {
     
     private QueryBuilder searchQueryToElasticSearchQuery(SearchQuery query) {        
         BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery();
-        for (SearchAttribute searchAttribute : query.getAttributes()) {
+        
+        for (SearchAttribute searchAttribute : query.getAttributes()) {            
             if (SearchAttribute.WILDCARD_FIELD.equals(searchAttribute.getName())) {
-                for (String wildCardField : wildCardFields) {
-                    QueryBuilder q = searchAttributeToElasticSearchQuery(new SearchAttribute().with(wildCardField, searchAttribute.getPattern()));
-                    queryBuilder.should(q);
-                }
+                QueryBuilder q = QueryBuilders.queryStringQuery(searchAttribute.getPattern());
+                queryBuilder.should(q);
             } else {
                 QueryBuilder q = searchAttributeToElasticSearchQuery(searchAttribute);
                 queryBuilder.should(q);
             }
         }
-
+        
         return queryBuilder;
     }
 
